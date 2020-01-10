@@ -2,6 +2,8 @@
 #include "allocation_and_send.h"
 #include <sstream>
 #include <iostream>
+#include <string>
+#include <cstdio>
 #include <conio.h>
 #include "opencv2/opencv.hpp"
 #include <opencv2/highgui/highgui.hpp>
@@ -119,47 +121,91 @@ int identification::datasetter(Mat image, int faceid, int& countt)
 	// Form a filename
 	filename = "";
 	stringstream ssfn;
-	ssfn << "C:\\Users\\slava\\OneDrive\\ƒÓÍÛÏÂÌÚ˚\\Visual Studio 2015\\Projects\\MAXIMOV2\\x64\\Release\\dataset\\Users\\" << faceid << "\\data\\" << countt << ".bmp";
+	ssfn << "C:\\Users\\slava\\OneDrive\\–î–æ–∫—É–º–µ–Ω—Ç—ã\\Visual Studio 2015\\Projects\\MAXIMOV2\\x64\\Release\\dataset\\Users\\" << faceid << "\\data\\" << countt << ".bmp";
 	filename = ssfn.str();
 	//if (!crop.empty()) {
+	//resize(image, image, (200, 200));
 	imwrite(filename, image);
+	//namedWindow(filename, 1);
 	imshow(filename, image);
 	//cout << "11" << endl;
 	//}
 	//cout << filename << endl;
 	countt++;
-	return countt;
+	//return countt;
+	//if (countt == 20) {
+	//	exit(0);
+	//}
+	//if (waitKey(1) == 27) break;
 	return 0;
 }
 
-int identification::trainer(int faceid, int& countt)
+int identification::delitor(int faceid, int & countt)
+{
+	string filename;
+	// Form a filename
+	while (true) {
+		filename = "";
+		stringstream ssfn;
+		ssfn << "C:\\Users\\slava\\OneDrive\\–î–æ–∫—É–º–µ–Ω—Ç—ã\\Visual Studio 2015\\Projects\\MAXIMOV2\\x64\\Release\\dataset\\Users\\" << faceid << "\\data\\" << countt << ".bmp";
+		filename = ssfn.str();
+		Mat img = imread(filename);
+		if (!img.empty()) {
+			remove(filename.c_str());
+			countt++;
+		}
+		else
+		{
+			countt = 0;
+			break;
+		}
+	}
+
+	//if (!crop.empty()) {
+	//resize(image, image, (200, 200));
+	//imwrite(filename, image);
+	//imshow(filename, image);
+	//cout << "11" << endl;
+	//}
+	//cout << filename << endl;
+	//countt++;
+	//return countt;
+	return 0;
+}
+
+int identification::trainer(int max_num_of_faceid, int& countt)
 {
 	//int countt = 0;
 	
 	//string filename = "";
 	//stringstream ssfn;
-	//ssfn << "C:\\Users\\slava\\OneDrive\\ƒÓÍÛÏÂÌÚ˚\\Visual Studio 2015\\Projects\\MAXIMOV2\\x64\\Release\\dataset\\Users\\" << faceid << "\\data\\" << countt << ".bmp";
+	//ssfn << "C:\\Users\\slava\\OneDrive\\–î–æ–∫—É–º–µ–Ω—Ç—ã\\Visual Studio 2015\\Projects\\MAXIMOV2\\x64\\Release\\dataset\\Users\\" << faceid << "\\data\\" << countt << ".bmp";
 	//filename = ssfn.str();
+	Mat graysc;
 
 	vector<Mat>images;
 	vector<int>labels;
 	//int i;
-	int max_num_of_faceid = 2;
-	for (faceid = 1; faceid <= max_num_of_faceid; faceid++) {
+	//int max_num_of_faceid = 2;
+	for (int faceid = 1; faceid <= max_num_of_faceid; faceid++) {
 		//i = 1;
 		//for (countt = 0; countt < 142; countt++) {
 		while (true) {
 			string filename = "";
 			stringstream ssfn;
-			ssfn << "C:\\Users\\slava\\OneDrive\\ƒÓÍÛÏÂÌÚ˚\\Visual Studio 2015\\Projects\\MAXIMOV2\\x64\\Release\\dataset\\Users\\" << faceid << "\\data\\" << countt << ".bmp";
+			ssfn << "C:\\Users\\slava\\OneDrive\\–î–æ–∫—É–º–µ–Ω—Ç—ã\\Visual Studio 2015\\Projects\\MAXIMOV2\\x64\\Release\\dataset\\Users\\" << faceid << "\\data\\" << countt << ".bmp";
 			filename = ssfn.str();
 
 			Mat img = imread(filename);
 			if (!img.empty()) {
-				images.push_back(img);
+				
+				cvtColor(img, graysc, COLOR_BGR2GRAY);
+				images.push_back(graysc);
 				labels.push_back(faceid);
 				cout << "loading" << " " << faceid << " " << countt << endl;
 				countt++;
+				//imshow("window", graysc);
+				//waitKey(0);
 			}
 			else {
 				countt = 0;
@@ -168,20 +214,20 @@ int identification::trainer(int faceid, int& countt)
 		}
 		//}
 	}
-	//images.push_back(imread("C:\\Users\\slava\\OneDrive\\ƒÓÍÛÏÂÌÚ˚\\Visual Studio 2015\\Projects\\MAXIMOV2\\x64\\Release\\dataset\\Users\\2\\data\\0.bmp"));
+	//images.push_back(imread("C:\\Users\\slava\\OneDrive\\–î–æ–∫—É–º–µ–Ω—Ç—ã\\Visual Studio 2015\\Projects\\MAXIMOV2\\x64\\Release\\dataset\\Users\\2\\data\\0.bmp"));
 	//labels.push_back(2);
 	
-	Ptr<FaceRecognizer> model = FisherFaceRecognizer::create();
+	//Ptr<FaceRecognizer> model = FisherFaceRecognizer::create();
 	//Ptr<FaceRecognizer> createLBPHFaceRecognizer(int radius = 1, int neighbors = 8, int grid_x = 8, int grid_y = 8, double threshold = DBL_MAX);
-	//Ptr<FaceRecognizer> model = LBPHFaceRecognizer::create();
+	Ptr<FaceRecognizer> model = LBPHFaceRecognizer::create();
 	model->train(images, labels);
 	cout << "training" << endl;
-	model->write("C:\\Users\\slava\\OneDrive\\ƒÓÍÛÏÂÌÚ˚\\Visual Studio 2015\\Projects\\MAXIMOV2\\x64\\Release\\dataset\\training\\training.xml");
+	model->write("C:\\Users\\slava\\OneDrive\\–î–æ–∫—É–º–µ–Ω—Ç—ã\\Visual Studio 2015\\Projects\\MAXIMOV2\\x64\\Release\\dataset\\training\\training.xml");
 	cout << "training done" << endl;
 	return 0;
 }
 
-int identification::predictor(Mat image, std::vector<Rect> faces)
+int identification::predictor(Mat image, std::vector<Rect> faces, vector<string>names, Ptr<FaceRecognizer> model)
 {
 	allocation_and_send A;
 
@@ -189,17 +235,61 @@ int identification::predictor(Mat image, std::vector<Rect> faces)
 	if (!image.empty()) {
 		cvtColor(image, gray, COLOR_BGR2GRAY);
 
-		Ptr<FaceRecognizer> model = FisherFaceRecognizer::create();
+		//Ptr<FaceRecognizer> model = FisherFaceRecognizer::create();
 		//Ptr<FaceRecognizer> model = LBPHFaceRecognizer::create();
-		model->read("C:\\Users\\slava\\OneDrive\\ƒÓÍÛÏÂÌÚ˚\\Visual Studio 2015\\Projects\\MAXIMOV2\\x64\\Release\\dataset\\training\\training.xml");
+		//model->read("C:\\Users\\slava\\OneDrive\\–î–æ–∫—É–º–µ–Ω—Ç—ã\\Visual Studio 2015\\Projects\\MAXIMOV2\\x64\\Release\\dataset\\training\\training.xml");
 		// Some variables for the predicted label and associated confidence (e.g. distance):
 		int predicted_label = -1;
 		double predicted_confidence = 0.0;
 		// Get the prediction and associated confidence from the model
 		model->predict(gray, predicted_label, predicted_confidence);
-
-		A.drawer(image, faces, predicted_label, predicted_confidence);
+		if (predicted_confidence < 100) {
+			predicted_confidence = (int)(100 - predicted_confidence);
+			A.drawer(image, faces, predicted_label, predicted_confidence, names);
+		}
+		else {
+			predicted_confidence = (int)(100 - predicted_confidence);
+			predicted_label = 0;
+			A.drawer(image, faces, predicted_label, predicted_confidence, names);
+		}
+		/*else {
+			int i = 0;
+			while (true) {
+				i++;
+				cout << i << endl;
+			}
+		}*/
 	}
+	/*else {
+		int i = 0;
+		while (true) {
+			i++;
+		}
+	}*/
 
 	return 0;
 }
+
+int identification::getcount(int faceid, int & countt)
+{
+	string filename;
+	// Form a filename
+	while (true) {
+		filename = "";
+		stringstream ssfn;
+		ssfn << "C:\\Users\\slava\\OneDrive\\–î–æ–∫—É–º–µ–Ω—Ç—ã\\Visual Studio 2015\\Projects\\MAXIMOV2\\x64\\Release\\dataset\\Users\\" << faceid << "\\data\\" << countt << ".bmp";
+		filename = ssfn.str();
+		Mat img = imread(filename);
+		if (!img.empty()) {
+			//remove(filename.c_str());
+			countt++;
+		}
+		else
+		{
+			return countt;
+			break;
+		}
+	}
+	return 0;
+}
+
