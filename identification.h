@@ -21,9 +21,12 @@ class identification {
 
 public:
 	int identificator(Mat frame, vector< vector<Point2f> > landmarks, int i);
-	int datasetter(Mat crop, int faceid, int& countt);
-	int trainer(int faceid, int& countt);
-	int predictor(Mat image, std::vector<Rect> faces);
+	int datasetter(Mat frame, int faceid, int& countt);
+	int delitor(int faceid, int& countt);
+	int trainer(int max_num_of_faceid, int& countt);
+	int predictor(Mat image, std::vector<Rect> faces, vector<string>names, Ptr<FaceRecognizer> model);
+	int getcount(int faceid, int & countt);
 };
 
 #endif
+
