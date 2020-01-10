@@ -22,8 +22,8 @@ class allocation_and_send {
 	//Mat img;
 	//vector<string>allocated;
 public:
-	int allocattor(Mat frame, Ptr<Facemark> facemark, int faceid, int& countt);
-	void drawer(Mat frame, std::vector<Rect> faces, int label, double confidence);
+	int allocattor(Mat frame, Ptr<Facemark> facemark, int faceid, int& countt, vector<string>names, Ptr<FaceRecognizer> model, int mode);
+	int drawer(Mat frame, std::vector<Rect> faces, int label, double confidence, vector<string>names);
 	int cropper(Mat image, Mat crop, std::vector<Rect> faces, int faceid, int& countt/*, vector<string>all, vector<Mat> img*/);
 	//void name_sender(Mat image, vector<string> vec);
 	//void img_sender(Mat image, vector<Mat> img);
