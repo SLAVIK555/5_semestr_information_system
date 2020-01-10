@@ -3,8 +3,10 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <sstream>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <conio.h>
+#include <vector>
 #include "opencv2/opencv.hpp"
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -24,7 +26,7 @@ using namespace cv::face;
 // Load landmark detector
 //facemark->loadModel("lbfmodel.yaml");
 
-int allocation_and_send::allocattor(Mat frame, Ptr<Facemark> facemark, int faceid, int& countt)
+int allocation_and_send::allocattor(Mat frame, Ptr<Facemark> facemark, int faceid, int& countt, vector<string>names, Ptr<FaceRecognizer> model, int mode)
 {
 	identification I;
 
@@ -56,30 +58,73 @@ int allocation_and_send::allocattor(Mat frame, Ptr<Facemark> facemark, int facei
 	//cropper(gray, crop, faces_g, allocated_g, m_allocated_g);
 	//cropper(gray, crop, faces_g, faceid, countt/*, allocated_g, m_allocated_g*/);
 	//landmarker(frame, faces_g, allocated_g, landmarked, m_allocated_g, m_landmarked, facemark);
-	//I.datasetter(gray, faceid, countt);
-	I.predictor(frame, faces);
-	return countt;
+	//I.datasetter(frame, faceid, countt);
+	//I.predictor(frame, faces, names, model);
+	//return countt;
+	switch (mode)
+	{
+	case 1:
+		I.datasetter(frame, faceid, countt);
+		break;
+	case 3:
+		I.predictor(frame, faces, names, model);
+		break;
+	default:
+		break;
+	}
+	return 0;
 }
 
-void allocation_and_send::drawer(Mat frame, std::vector<Rect> faces, int label, double confidence)
+int allocation_and_send::drawer(Mat frame, std::vector<Rect> faces, int label, double confidence, vector<string>names)
 {
 	// Draw rectangle on the detected faces
 	Mat drawres = frame;
-	for (int i = 0; i < faces.size(); i++)//size_t i = 0
-	{
-		rectangle(drawres, faces[i], Scalar(0, 255, 0), 3);
+	if (!faces.empty()) {
+		for (int i = 0; i < faces.size(); i++)//size_t i = 0
+		{
+			rectangle(drawres, faces[i], Scalar(0, 255, 0), 3);
+		}
+
+		//string names[] = { "unknown", "slava", "igor" };
+		/*string Name;
+		vector<string>names;
+		ifstream in;
+		in.open("C:\\Users\\slava\\OneDrive\\Документы\\Visual Studio 2015\\Projects\\MAXIMOV2\\MAXIMOV2\\name.txt", std::ios::in);
+		while (true) {
+			getline(in, Name);
+			if (!in.eof()) {
+				names.push_back(Name);
+				Name.clear();
+			}
+			else
+			{
+				break;
+			}
+		}*/
+		
+		stringstream ss;
+		ss << names[label] << ";  " << confidence << "%";
+		putText(drawres, ss.str(), Point(faces[0].x, faces[0].y), 1, 2, Scalar(0, 0, 255), 2);
+
+		//cout << confidence << endl;
+		//Mat d = drawres;
+		//string s = to_string(confidence);
+		//putText(d, s, Point(faces[1].x, faces[1].y), 1, 2, Scalar(0, 0, 255), 2);
+		//cout << faces.size() << endl;
+		if (!drawres.empty()) {
+			imshow("predict", drawres);
+		}
+		/*else {
+			int i = 0;
+			while (true) {
+				i++;
+				cout << i << endl;
+			}
+		}*/
+		//const string rectangl;
+		//displayer(rectangl, drawres);
+		return 0;
 	}
-
-	stringstream ss;
-	ss << label;
-	putText(drawres, ss.str(), Point(faces[0].x, faces[0].y), 1, 2, Scalar(0, 0, 255), 2);
-
-	string s = to_string(confidence);
-	putText(drawres, ss.str(), Point(faces[faces.size()].x, faces[faces.size()].y), 1, 2, Scalar(0, 0, 255), 2);
-
-	imshow("predict", drawres);
-	//const string rectangl;
-	//displayer(rectangl, drawres);
 }
 
 int allocation_and_send::cropper(Mat image, Mat crop, std::vector<Rect> faces, int faceid, int& countt/*, vector<string> all, vector<Mat> img*/)
